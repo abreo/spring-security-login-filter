@@ -6,19 +6,19 @@
     http://www.springframework.org/schema/security
     http://www.springframework.org/schema/security/spring-security-4.0.xsd">
 
+    <!-- 自作の認証を使う場合は、entry-point-refを指定します。 --> 
     <http auto-config="false" use-expressions="true" entry-point-ref="loginUrlAuthenticationEntryPoint" >
 
+        <!-- 自作の認証filterを指定します。 --> 
         <custom-filter after="FORM_LOGIN_FILTER" ref="customLoginFilter" /> 
 
-        <!-- 認可の設定 --> 
         <intercept-url pattern="/top*" access="hasAnyRole('ROLE_ADMIN', 'ROLE_USER')" />
         <intercept-url pattern="/admin*" access="hasRole('ROLE_ADMIN')" />
         <intercept-url pattern="/user*" access="hasRole('ROLE_USER')" />
-        
-        <!-- 権限なし時の遷移先 -->
+
         <access-denied-handler error-page="/403" />
         
-        <!-- 認証のログイン処理 -->
+        <!-- 認証のログイン処理は、自作認証を使う場合は不要です。 -->
         <!-- 
         <form-login 
             login-page="/" 
@@ -26,7 +26,7 @@
             authentication-failure-url="/error" 
             login-processing-url="/j_spring_security_check"/>
          -->
-        <!-- 認証のログアウト処理 -->
+         
         <logout
             logout-url="/logout"
             logout-success-url="/"
@@ -35,19 +35,19 @@
         <anonymous granted-authority="ROLE_ANONYMOUS" />
     </http>
 
-    <beans:bean id="loginUrlAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+    <!-- entry-point-refは、どのパスへアクセスした時に自作認証filterを実行するのかを指定します。 --> 
+    <beans:bean id="loginUrlAuthenticationEntryPoint"
+         class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
         <beans:constructor-arg value="/" />
     </beans:bean>
 
+    <!-- 最初に動く認証filterです。 --> 
     <beans:bean id="customLoginFilter"
         class="jp.co.security.CustomLoginFilter">
+        <!-- 次に動くfilterです。ここで認可(ロール)の設定をします。 --> 
         <beans:property name="authenticationManager" ref="authenticationManager" />
-        <!-- 認証失敗時に呼ばれるハンドラクラス -->
         <beans:property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
-        <!-- 認証成功時に呼ばれるハンドラクラス -->
         <beans:property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
-        <!-- 認証処理を行うパス -->
-        <!-- <beans:property name="filterProcessesUrl" value="/authentication" /> -->
         <beans:property name="filterProcessesUrl" value="/authentication" /> 
     </beans:bean>
     
@@ -77,18 +77,5 @@
         class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler" >
         <beans:property name="targetUrlParameter" value="redirectTo"/> 
     </beans:bean>
-    
-    <!-- ユーザとROLEを定義 --> 
-    <!-- 
-    <authentication-manager>
-        <authentication-provider>
-            <user-service>
-                <user name="admin" password="admin" authorities="ROLE_ADMIN" />
-                <user name="user" password="user" authorities="ROLE_USER" />
-            </user-service>
-        </authentication-provider>
-    </authentication-manager>
-     -->
-
 
 </beans:beans>
