@@ -14,12 +14,6 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter{
     public Authentication attemptAuthentication(HttpServletRequest request,
             HttpServletResponse response) throws AuthenticationException {
 
-        if (!request.getMethod().equals("POST")) {
-            throw new AuthenticationServiceException("Authentication method not supported: "
-                    + request.getMethod());
-        }
-
-        // Obtain UserName, Password, CompanyId
         String username = super.obtainUsername(request);
         String password = super.obtainPassword(request);
 
@@ -32,18 +26,8 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter{
                 throw new AuthenticationServiceException("Password is invalid.");
             }
         } else {
-            //throw new AuthenticationServiceException("User Name is invalid.");
-            //throw new AuthException("Authentication Error");
             throw new AuthenticationServiceException("User Name is invalid.");
         }
-        // username required
-        //if (!StringUtils.hasText(username)) {
-        //    throw new AuthenticationServiceException("UserName is required");
-        //}
-
-        // validate password, companyId
-
-        // omitted other process
 
         CustomUsernamePasswordAuthenticationToken authRequest =
                 new CustomUsernamePasswordAuthenticationToken(username, password);
